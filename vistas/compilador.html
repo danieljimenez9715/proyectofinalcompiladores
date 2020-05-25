@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Compilador</title>
+  <style type="text/css">
+    label { font-size: 20px; }
+    textarea { width: 98%; }
+    #btn_validar { font-size: 20px; }
+    .contenido { width: 100%; overflow: hidden; }
+    .mitad { width: 49%; display: inline-block; float: left; }
+    .resultado { font-size: 30px;  padding: 10px; display: inline-block;}
+    .invalido { color: #721c24; background-color: #f8d7da;}
+    .valido { color: #155724; background-color: #d4edda;}
+    footer { margin-top: 100px; }
+  </style>
+</head>
+<body>  
+
+  <div class="contenido">
+    <div class="mitad">
+        <h1>Compilador</h1>
+    </div>
+    <div class="mitad">
+      <h2>Ejemplos de codigos</h2>
+      <button onclick="cargarCodigo(0)">Declarar variables</button>
+      <button onclick="cargarCodigo(1)">Imprimir</button>
+      <button onclick="cargarCodigo(2)">Condicionales</button>
+      <button onclick="cargarCodigo(3)">Ciclos</button>
+      <button onclick="cargarCodigo(4)">Anidar</button>
+    </div>
+  </div>
+ 
+
+  <form action="validar" method="POST">
+    {% csrf_token %}
+    <label for="codigo">Ingrese su codigo aqui</label><br>
+    <textarea name="codigo" id="codigo" rows="14" spellcheck="false" required>{% if codigo %}{{codigo}}{% endif%}</textarea>
+    <div style="text-align: center;">
+      <button type="submit" id="btn_validar">Validar</button>
+    </div>
+  </form>
+
+  {% if codigo %}
+    <div class="contenido">
+      <div class="mitad">
+        {% if resultado_analisis %}
+          <div class="resultado invalido">El Codigo es Invalido.</div>
+          <br>
+          <h3>Se encontraron los siguentes errores Sintácticos:</h3>
+          <textarea id="resultado_lexico" rows="7"
+            disabled>{% for elemento in resultado_analisis %}{{ elemento }}{% endfor %}</textarea>
+        {% else %}
+          <div class="resultado valido">El Codigo es Valido.</div>
+          <br><br>
+          <h3>No hay errores Sintácticos.</h3>
+        {% endif %}
+        </div>
+      <div class="mitad">
+        <h2>Resultado analisis Lexico</h2>
+        <textarea id="resultado_lexico" rows="10" disabled>{% for elemento in resultado_lexico %}{{ elemento }}{% endfor %}</textarea>
+      </div>
+    </div>
+  {% endif %}
+
+    <footer>
+      <div class="contenedor">
+        <div class="mitad">
+          <h3>Desarrolladores</h3>
+          <ul>
+            <li>Daniel Fernando Jiménez Rincon</li>
+            <li>Holman José Jiménez Álvarez</li>
+          </ul>
+        </div>
+        <div class="mitad">
+          <h3>Codigo Fuente</h3>
+          <a href="https://github.com/danieljimenez9715/proyectofinalcompiladores">GitHub</a>
+        </div>
+      </div>
+    </footer>
+
+    
+  <script type="text/javascript">
+    textarea_codigo = document.getElementById('codigo');
+
+    codigos = [
+`numero << 1
+suma << 1 + 2
+suma << suma + 1
+operacion << 10-1*30/2
+cadena << "hola"`
+,
+`numero << 1
+saludo << "hola"
+
+@mostrar { numero }
+@mostrar { saludo }
+@mostrar { "Hola Mundo" }`
+,
+`n1 << 1
+n2 << 2
+
+si? { n1 == 1 } [ @mostrar { n1 } ]
+
+si? { n1 < n2 } [ n1 ] sino? [ n2 ]`
+,
+`n1 << 1
+n2 << 2
+
+@mientras { n1 < 10 } [  n1<<n1+1  ]
+
+@hacer [ n2<<n2+1 ] @mientras { n2 < 10 } 
+
+@para { i<<1, i<10, i<<i+1 } [ @mostrar { i } ]`
+,
+`n1 << 1
+n2 << 2
+
+si? {n1<n2}[  si? {1==1}[n1]  ] sino? [  si? {1>=0}[n1] sino? [n2]   ]
+
+@mientras { n1 < 10 } [    @para {i<<1, i<10, i<<i+1} [ @mostrar { i } ]    ]
+
+si? {n1<n2}[   @hacer [ n2<<n2+1 ] @mientras { n2 < 10 }    ]`      
+    ]
+
+    function cargarCodigo(numero) {
+      textarea_codigo.value = codigos[numero];
+    }
+
+  </script>
+
+</body>
+</html>
